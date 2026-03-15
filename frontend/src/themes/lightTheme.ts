@@ -2,31 +2,28 @@ import type {TypeTheme} from "./typeTheme";
 
 export const lightTheme: TypeTheme = {
     colors: {
-        // Fundo geral (cinza azulado claro)
-        background: '#F4F6FB',
-        backgroundSecondary: '#E9ECF5',
-
-        // Cards / superfícies
-        surface: '#FFFFFF',
-
-        // Cor principal (mesmo laranja do dark)
-        primary: '#FF8A00',
-
-        // Secundária (azul financeiro)
-        secondary: '#1E3A8A',
-
-        // Texto principal
-        text: '#0F172A',
-
-        // Texto secundário
-        textSecondary: '#475569',
-
-        // Bordas sutis
-        border: '#E2E8F0',
-
-        // Estados
-        success: '#16A34A',
-        error: '#DC2626',
-        warning: '#F59E0B',
+        accent: "#4F7FFF",
+        accentSoft: "rgba(79,127,255,0.12)",
+        accentGlow: "rgba(79,127,255,0.25)",
+        success: "#22C97B",
+        successSoft: "rgba(34,201,123,0.12)",
+        warning: "#F5A623",
+        warningSoft: "rgba(245,166,35,0.12)",
+        danger: "#FF5C5C",
+        dangerSoft: "rgba(255,92,92,0.12)",
+        error: "#EF4444",
+        bg: "#F0F2F8",
+        bgPanel: "#FFFFFF",
+        bgCard: "#FFFFFF",
+        bgHover: "#F0F4FF",
+        border: "#E2E6F0",
+        borderLight: "#C8D0E8",
+        textPrimary: "#111827",
+        textSecondary: "#4B5675",
+        textMuted: "#9BA3BF",
     },
+    sizes:{
+        sidebarW: "240px",
+        navH: "60px",
+    }
 };
