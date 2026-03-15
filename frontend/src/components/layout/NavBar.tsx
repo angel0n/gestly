@@ -1,10 +1,20 @@
 import React from "react";
 import styled, {keyframes} from "styled-components";
+import {Menu} from "lucide-react";
+import {useTheme} from "../../themes/ThemeContext.tsx";
 
-export function NavBar(): React.ReactNode {
-
+type NavBarProps = {
+    setMenuOpen: (menuOpen: boolean) => void;
+    menuOpen: boolean;
+}
+export function NavBar({ setMenuOpen, menuOpen }: NavBarProps): React.ReactNode {
+    const { theme } = useTheme()
     return (
         <NavBarComponent>
+            <HamburgerBtn onClick={() => setMenuOpen(!menuOpen)}>
+                <Menu color={theme.colors.textPrimary}/>
+            </HamburgerBtn>
+
             <NavLogo>
                 <LogoMark>Ge</LogoMark>
                 <LogoText>Gestly</LogoText>
@@ -40,6 +50,24 @@ const NavBarComponent = styled.header`
     z-index: 100;
     animation: ${fadeUp} 0.4s ease both;
 `;
+
+const HamburgerBtn = styled.button`
+    width: 34px;
+    height: 34px;
+    background: ${({theme}) => theme.colors.bgCard};
+    border: 1px solid ${({theme}) => theme.colors.border};
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: 10px;
+
+    @media (max-width: 768px) {
+        display: flex;
+    }
+`;
+
 
 const NavLogo = styled.div`
     width: ${({theme}) =>theme.sizes.sidebarW};

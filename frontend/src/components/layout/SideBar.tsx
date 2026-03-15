@@ -1,8 +1,11 @@
 import React, {useState} from "react";
 import styled, {type DefaultTheme} from "styled-components";
-import {fadeUp, NavAvatar} from "./NavBar.tsx";
+import {NavAvatar} from "./NavBar.tsx";
 
-export function SideBar(): React.ReactNode {
+type SideBarProps = {
+    menuOpen: boolean;
+}
+export function SideBar({ menuOpen }: SideBarProps): React.ReactNode {
     const [activeNav, setActiveNav] = useState("Dashboard");
 
     const navItems: Array<{label: string, icon: string, badge: string}> = [
@@ -45,7 +48,7 @@ export function SideBar(): React.ReactNode {
         // },
     ];
     return (
-        <SidebarComponent>
+        <SidebarComponent open={menuOpen}>
             <SideSection>
                 <SideLabel>Principal</SideLabel>
                 {navItems.map(item => (
@@ -87,15 +90,24 @@ export function SideBar(): React.ReactNode {
     )
 }
 
-const SidebarComponent = styled.aside`
+const SidebarComponent = styled.aside<{open:boolean}>`
     grid-area: side;
-    background: ${({theme}) => theme.colors.bgPanel};
-    border-right: 1px solid ${({theme}) => theme.colors.border};
+    background: ${({ theme }) => theme.colors.bgPanel};
+    border-right: 1px solid ${({ theme }) => theme.colors.border};
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
-    animation: ${fadeUp} 0.4s ease 0.05s both;
+
+    @media (max-width: 768px) {
+        position: fixed;
+        top: ${({ theme }) => theme.sizes.navH};
+        left: ${({open}) => open ? "0" : "-260px"};
+        width: 260px;
+        height: calc(100vh - ${({ theme }) => theme.sizes.navH});
+        z-index: 200;
+        transition: left 0.25s ease;
+    }
 `;
 
 const SideSection = styled.div`
