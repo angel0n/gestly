@@ -76,7 +76,7 @@ const Row = styled.div<{ $focused: boolean; $error: boolean }>`
     border-radius: 8px;
     overflow: hidden;
     transition: all 0.15s;
-    background: ${({theme}) => theme.colors.bgCard};
+    background: ${({theme}) => theme.colors.accentGlow};
     border: 1.5px solid ${({$focused, $error, theme}) =>
     $error ? theme.colors.danger : $focused ? theme.colors.accent : theme.colors.border};
     box-shadow: 0 0 0 3px ${({$focused, $error, theme}) =>
