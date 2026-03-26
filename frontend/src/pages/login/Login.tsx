@@ -2,8 +2,10 @@ import { useState } from "react";
 import styled from "styled-components";
 import Button from "../../components/buttons/Button.tsx";
 import {TextInput} from "../../components/inputs/TextInput.tsx";
+import {useAuth} from "../../context/AuthContext.tsx";
 
 export function Login() {
+    const { login } = useAuth()
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -14,7 +16,6 @@ export function Login() {
 
                 <TextInput
                     label="E-mail"
-                    prefix="@"
                     value={email}
                     onChange={(val) => setEmail(val ?? "")}
                 />
@@ -26,7 +27,7 @@ export function Login() {
                     obscured
                 />
 
-                <Button>Entrar</Button>
+                <Button onClick={() => login(email, password)} >Entrar</Button>
             </Card>
         </Wrap>
     );

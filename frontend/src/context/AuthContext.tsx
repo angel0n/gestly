@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import Api from "../services/Api.ts";
 
 interface User {
     id: string;
@@ -9,7 +10,7 @@ interface User {
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (token: string) => void;
+    login: (email: string, senha: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -35,7 +36,6 @@ function clearCache() {
     localStorage.removeItem("token");
 }
 
-
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -43,29 +43,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(!getCache());
 
     useEffect(() => {
-        if (user) return;
+        const validate = async () => {
+            const token = localStorage.getItem("token");
+            if (!token) { setLoading(false); return; }
 
-        const token = localStorage.getItem("token");
-        if (!token) { setLoading(false); return; }
+            try {
+                const { data } = await Api.get<User>("/auth/me");
+                setUser(data);
+                setCache(data);
+            } catch {
+                clearCache();
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        fetch("/auth/me", { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                if (!res.ok) throw new Error();
-                return res.json() as Promise<User>;
-            })
-            .then(data => { setUser(data); setCache(data); })
-            .catch(() => { clearCache(); setUser(null); })
-            .finally(() => setLoading(false));
+        if (!user) validate();
     }, []);
 
-    const login = (token: string) => {
+    const login = async (email: string, senha: string) => {
+        const { data: { token } } = await Api.post<{ token: string }>("/auth/login", { email, senha });
         localStorage.setItem("token", token);
-        setLoading(true);
 
-        fetch("/auth/me", { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => res.json() as Promise<User>)
-            .then(data => { setUser(data); setCache(data); })
-            .finally(() => setLoading(false));
+        const { data: me } = await Api.get<User>("/auth/me");
+        setUser(me);
+        setCache(me);
     };
 
     const logout = () => { clearCache(); setUser(null); };
