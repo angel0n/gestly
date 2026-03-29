@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { envValidationSchema } from './config/env.validation';
 import { UsersModule } from './features/users/users.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './features/auth/AuthGuard';
 
 @Module({
   imports: [
@@ -29,6 +31,12 @@ import { UsersModule } from './features/users/users.module';
       }),
     }),
     UsersModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
   ],
 })
 export class AppModule {}
