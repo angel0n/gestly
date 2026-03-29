@@ -1,17 +1,21 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Api from "../services/Api.ts";
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-}
+import type {User} from "../interfaces/entities.ts";
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
     login: (email: string, senha: string) => Promise<void>;
     logout: () => void;
+}
+
+interface AuthResponse {
+    accessToken: string,
+    user: {
+        id: number
+        name: string,
+        email: string,
+    },
 }
 
 const CACHE_KEY = "auth_cache";
@@ -39,6 +43,7 @@ function clearCache() {
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+
     const [user, setUser] = useState<User | null>(getCache());
     const [loading, setLoading] = useState(!getCache());
 
@@ -63,8 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const login = async (email: string, senha: string) => {
-        const { data: { token } } = await Api.post<{ token: string }>("/auth/login", { email, senha });
-        localStorage.setItem("token", token);
+        const { data } = await Api.post<AuthResponse>("/auth/login", { email, password: senha });
+        localStorage.setItem("token", data.accessToken);
 
         const { data: me } = await Api.get<User>("/auth/me");
         setUser(me);

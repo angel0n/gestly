@@ -12,6 +12,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from '../../core/dtos/PaginationDto';
+import { Public } from '../../core/decorators/public.decorator';
 
 @Controller('users')
 export class UsersController {

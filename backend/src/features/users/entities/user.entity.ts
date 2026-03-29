@@ -1,9 +1,11 @@
 import {  Entity,  PrimaryGeneratedColumn,  Column,  CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-export enum UserRole {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-}
+export const UserRole = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+} as const;
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 @Entity('users')
 export class User {

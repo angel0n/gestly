@@ -1,13 +1,37 @@
 import { useState } from "react";
 import styled from "styled-components";
 import Button from "../../components/buttons/Button.tsx";
-import {TextInput} from "../../components/inputs/TextInput.tsx";
-import {useAuth} from "../../context/AuthContext.tsx";
+import { TextInput } from "../../components/inputs/TextInput.tsx";
+import { useAuth } from "../../context/AuthContext.tsx";
+import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 export function Login() {
-    const { login } = useAuth()
+    const { login, loading } = useAuth();
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState<string[]>([]);
+
+    const handleLogin = async () => {
+        setErrors([]);
+        try {
+            await login(email, password);
+            navigate("/dashboard");
+        } catch (e: any) {
+            const status = e?.response?.status;
+            const message = e?.response?.data?.message;
+
+            if (status === 422 && Array.isArray(message)) {
+                setErrors(message);
+            } else {
+                setErrors(["Ocorreu um erro. Tente novamente."]);
+            }
+        }
+    };
+
+    const getFieldError = (field: string) =>
+        errors.filter((e) => e.toLowerCase().includes(field)).join("; ");
 
     return (
         <Wrap>
@@ -18,16 +42,24 @@ export function Login() {
                     label="E-mail"
                     value={email}
                     onChange={(val) => setEmail(val ?? "")}
+                    error={getFieldError("email")}
                 />
 
                 <TextInput
                     label="Senha"
-                    onChange={(val) => setPassword(val ?? "")}
                     value={password}
+                    onChange={(val) => setPassword(val ?? "")}
+                    error={getFieldError("password")}
                     obscured
                 />
 
-                <Button onClick={() => login(email, password)} >Entrar</Button>
+                {errors.length > 0 && !getFieldError("email") && !getFieldError("password") && (
+                    <ErrorMessage>{errors[0]}</ErrorMessage>
+                )}
+
+                <Button onClick={handleLogin} disabled={loading}>
+                    {loading ? <Loader2 size={18} className="animate-spin" /> : "Entrar"}
+                </Button>
             </Card>
         </Wrap>
     );
@@ -59,4 +91,10 @@ const Title = styled.h1`
     font-size: 20px;
     font-weight: 600;
     color: ${({ theme }) => theme.colors.textPrimary};
+`;
+
+const ErrorMessage = styled.p`
+    margin: 0;
+    font-size: 13px;
+    color: ${({ theme }) => theme.colors.danger ?? "#e53e3e"};
 `;
