@@ -2,6 +2,7 @@ import React from "react";
 import styled, {keyframes} from "styled-components";
 import {Menu} from "lucide-react";
 import {useTheme} from "../../themes/ThemeContext.tsx";
+import {useAuth} from "../../context/AuthContext.tsx";
 
 type NavBarProps = {
     setMenuOpen: (menuOpen: boolean) => void;
@@ -9,6 +10,7 @@ type NavBarProps = {
 }
 export function NavBar({ setMenuOpen, menuOpen }: NavBarProps): React.ReactNode {
     const { theme } = useTheme()
+    const { user } = useAuth()
     return (
         <NavBarComponent>
             <HamburgerBtn onClick={() => setMenuOpen(!menuOpen)}>
@@ -23,7 +25,7 @@ export function NavBar({ setMenuOpen, menuOpen }: NavBarProps): React.ReactNode 
             <NavSpacer/>
 
             <NavActions>
-                <NavAvatar title="Meu perfil">LM</NavAvatar>
+                <NavAvatar title="Meu perfil">{user?.name?.substring(0,2).toUpperCase() ?? "US"}</NavAvatar>
             </NavActions>
         </NavBarComponent>
     )

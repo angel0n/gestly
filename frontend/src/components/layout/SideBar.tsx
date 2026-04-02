@@ -1,89 +1,134 @@
-import React, {useState} from "react";
-import styled, {type DefaultTheme} from "styled-components";
+import React, {useEffect, useRef, useState} from "react";
+import styled from "styled-components";
 import {NavAvatar} from "./NavBar.tsx";
+import {useAuth} from "../../context/AuthContext.tsx";
+import {useNavigate} from "react-router-dom";
 
-type SideBarProps = {
-    menuOpen: boolean;
-}
+type NavItem = {label: string; icon: string; badge: string; path: string;}
+type SideBarProps = {menuOpen: boolean;}
+
 export function SideBar({ menuOpen }: SideBarProps): React.ReactNode {
-    const [activeNav, setActiveNav] = useState("Dashboard");
+    const { user } = useAuth()
+    const navigate = useNavigate()
 
-    const navItems: Array<{label: string, icon: string, badge: string}> = [
+    const [activeNav, setActiveNav] = useState("Dashboard");
+    const [userMenuOpen, setUserMenuOpen] = useState(true);
+    const userMenuRef = useRef<HTMLDivElement>(null);
+
+    const onClick = (item: NavItem)=> {
+        setActiveNav(item.label)
+        navigate(item.path)
+    }
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+                setUserMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const navItems: Array<NavItem> = [
         {
             label: "Dashboard",
             icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
             badge: "",
+            path: "/dashboard",
         },
-        // {
-        //     label: "Atendimentos",
-        //     icon: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z",
-        //     badge: "12",
-        //     badgeVariant: "danger" as const
-        // },
-        // {
-        //     label: "Ordens de serviço",
-        //     icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01",
-        //     badge: "5"
-        // },
-        // {
-        //     label: "Clientes",
-        //     icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"
-        // },
-        // {
-        //     label: "Cobranças",
-        //     icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z",
-        //     badge: "3",
-        //     badgeVariant: "warning" as const
-        // },
     ];
-    const navSecondary: Array<{label: string, icon: string}> = [
-        // {
-        //     label: "Relatórios",
-        //     icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-        // },
-        // {label: "Catálogo", icon: "M4 6h16M4 10h16M4 14h16M4 18h16"},
-        // {
-        //     label: "Configurações",
-        //     icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-        // },
+    const navSecondary: Array<{label: string, icon: string}> = [];
+    const userMenuItems = [
+        {
+            label: "Meu Perfil",
+            icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
+            onClick: () => { navigate("/profile"); setUserMenuOpen(false); }
+        },
+        {
+            label: "Configurações",
+            icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
+            onClick: () => { navigate("/settings"); setUserMenuOpen(false); }
+        },
+        {
+            label: "Suporte",
+            icon: "M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+            onClick: () => { navigate("/support"); setUserMenuOpen(false); }
+        },
+        { divider: true },
+        {
+            label: "Sair",
+            icon: "M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1",
+            danger: true,
+            onClick: () => { /* logout logic */ setUserMenuOpen(false); }
+        },
     ];
     return (
         <SidebarComponent open={menuOpen}>
             <SideSection>
                 <SideLabel>Principal</SideLabel>
                 {navItems.map(item => (
-                    <NavItem
+                    <NavItemButton
                         key={item.label}
                         active={activeNav === item.label}
-                        onClick={() => setActiveNav(item.label)}
+                        onClick={() => onClick(item)}
                     >
                         <Icon d={item.icon} size={15}/>
                         {item.label}
                         {item.badge && (
                             <NavItemBadge>{item.badge}</NavItemBadge>
                         )}
-                    </NavItem>
+                    </NavItemButton>
                 ))}
             </SideSection>
 
             <SideSection>
                 <SideLabel>Análises</SideLabel>
                 {navSecondary.map(item => (
-                    <NavItem key={item.label} onClick={() => setActiveNav(item.label)} active={activeNav === item.label}>
+                    <NavItemButton key={item.label} onClick={() => setActiveNav(item.label)} active={activeNav === item.label}>
                         <Icon d={item.icon} size={15}/>
                         {item.label}
-                    </NavItem>
+                    </NavItemButton>
                 ))}
             </SideSection>
 
-            <SideBottom>
-                <UserCard>
-                    <NavAvatar style={{width: 32, height: 32, fontSize: 12, borderRadius: 8}}>LM</NavAvatar>
+            <SideBottom ref={userMenuRef}>
+                <UserPopover open={userMenuOpen}>
+                    <PopoverHeader>
+                        <NavAvatar style={{ width: 36, height: 36, fontSize: 13, borderRadius: 10 }}>
+                            {user?.name?.substring(0, 2).toUpperCase() ?? "US"}
+                        </NavAvatar>
+                        <PopoverUserInfo>
+                            <strong>{user?.name ?? "User"}</strong>
+                            <span>{user?.email ?? "user@email.com"}</span>
+                        </PopoverUserInfo>
+                    </PopoverHeader>
+
+                    <PopoverDivider />
+
+                    {userMenuItems.map((item, i) =>
+                        "divider" in item && item.divider
+                            ? <PopoverDivider key={i} />
+                            : (
+                                <PopoverItem key={i} danger={"danger" in item && item.danger} onClick={"onClick" in item ? item.onClick : undefined}>
+                                    <Icon d={item.icon ?? ""} size={14} />
+                                    {"label" in item ? item.label : ""}
+                                </PopoverItem>
+                            )
+                    )}
+                </UserPopover>
+
+                <UserCard onClick={() => setUserMenuOpen(v => !v)} active={userMenuOpen}>
+                    <NavAvatar style={{ width: 32, height: 32, fontSize: 12, borderRadius: 8 }}>
+                        {user?.name?.substring(0, 2).toUpperCase() ?? "US"}
+                    </NavAvatar>
                     <UserInfo>
-                        <p>Lucas Mendes</p>
-                        <p>Administrador</p>
+                        <p>{user?.name ?? "User"}</p>
                     </UserInfo>
-                    <OnlineDot/>
+                    <ChevronIcon open={userMenuOpen}>
+                        <Icon d="M5 15l7-7 7 7" size={14} />
+                    </ChevronIcon>
+                    <OnlineDot />
                 </UserCard>
             </SideBottom>
         </SidebarComponent>
@@ -135,7 +180,7 @@ const SideLabel = styled.p`
     padding: 0 8px 8px;
 `;
 
-const NavItem = styled.button<{ active?: boolean }>`
+const NavItemButton = styled.button<{ active: boolean }>`
     width: 100%;
     display: flex;
     align-items: center;
@@ -143,32 +188,31 @@ const NavItem = styled.button<{ active?: boolean }>`
     padding: 8px 10px;
     border-radius: 8px;
     border: none;
-    background: ${({active, theme}) => active ? theme.colors.accentSoft : "transparent"};
-    color: ${({active, theme}) => active ? theme.colors.accent : theme.colors.textSecondary};
+    background: ${({ active, theme }) => active ? theme.colors.accentSoft : "transparent"};
+    color: ${({ active, theme }) => active ? theme.colors.accent : theme.colors.textSecondary};
     cursor: pointer;
     font-family: 'DM Sans', sans-serif;
     font-size: 13.5px;
-    font-weight: ${({active}) => active ? "500" : "400"};
+    font-weight: ${({ active }) => active ? "500" : "400"};
     text-align: left;
     transition: all 0.15s;
     position: relative;
 
     &:hover {
-        background: ${({active, theme}) => active ? theme.colors.accentSoft : theme.colors.bgCard};
-        color: ${({theme}) => theme.colors.textPrimary};
+        background: ${({ active, theme }) => active ? theme.colors.accentSoft : theme.colors.bgCard};
+        color: ${({ theme }) => theme.colors.textPrimary};
     }
 
-    ${({active}) => active && `
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 50%;
-      transform: translateY(-50%);
-      width: 3px; height: 18px;
-      background: ${({theme}: { theme: DefaultTheme }) => theme.colors.accent};
-      border-radius: 0 3px 3px 0;
-    }
-  `}
+    ${({ active }) => active && `
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 50%;
+            transform: translateY(-50%);
+            width: 3px; height: 18px;
+            border-radius: 0 3px 3px 0;
+        }
+    `}
 `;
 
 const NavItemBadge = styled.span<{ variant?: "default" | "danger" | "success" }>`
@@ -192,23 +236,107 @@ const SideBottom = styled.div`
     margin-top: auto;
     padding: 12px;
     border-top: 1px solid ${({theme}) => theme.colors.border};
+    position: relative;
 `;
 
-const UserCard = styled.div`
+const UserPopover = styled.div<{ open: boolean }>`
+    position: absolute;
+    bottom: calc(100% - 8px);
+    left: 12px;
+    right: 12px;
+    background: ${({ theme }) => theme.colors.bgPanel};
+    border: 1px solid ${({ theme }) => theme.colors.border};
+    border-radius: 12px;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    padding: 6px;
+    z-index: 300;
+
+    /* Animação */
+    opacity: ${({ open }) => open ? 1 : 0};
+    transform: ${({ open }) => open ? "translateY(0) scale(1)" : "translateY(8px) scale(0.97)"};
+    pointer-events: ${({ open }) => open ? "all" : "none"};
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    transform-origin: bottom center;
+`;
+
+const PopoverHeader = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 8px 10px;
+`;
+
+const PopoverUserInfo = styled.div`
+    flex: 1;
+    min-width: 0;
+
+    strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: ${({ theme }) => theme.colors.textPrimary};
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    span {
+        display: block;
+        font-size: 11px;
+        color: ${({ theme }) => theme.colors.textMuted};
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+`;
+
+const PopoverDivider = styled.div`
+    height: 1px;
+    background: ${({ theme }) => theme.colors.border};
+    margin: 4px 2px;
+`;
+
+const PopoverItem = styled.button<{ danger?: boolean }>`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: ${({ danger, theme }) => danger ? theme.colors.danger : theme.colors.textSecondary};
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
+    transition: all 0.12s;
+
+    &:hover {
+        background: ${({ danger, theme }) => danger ? theme.colors.dangerSoft : theme.colors.bgCard};
+        color: ${({ danger, theme }) => danger ? theme.colors.danger : theme.colors.textPrimary};
+    }
+`;
+
+const UserCard = styled.div<{ active?: boolean }>`
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 10px;
     border-radius: 10px;
-    background: ${({theme}) => theme.colors.bgCard};
-    border: 1px solid ${({theme}) => theme.colors.border};
+    background: ${({ theme }) => theme.colors.bgCard};
+    border: 1px solid ${({ active, theme }) => active ? theme.colors.accent : theme.colors.border};
     cursor: pointer;
     transition: border-color 0.15s;
+    position: relative;
 
     &:hover {
-        border-color: ${({theme}) => theme.colors.borderLight};
+        border-color: ${({ theme }) => theme.colors.borderLight};
     }
 `;
+
+
 
 const UserInfo = styled.div`
     flex: 1;
@@ -227,6 +355,14 @@ const UserInfo = styled.div`
         font-size: 11px;
         color: ${({theme}) => theme.colors.textMuted};
     }
+`;
+
+const ChevronIcon = styled.span<{ open: boolean }>`
+    display: flex;
+    align-items: center;
+    color: ${({ theme }) => theme.colors.textMuted};
+    transition: transform 0.2s ease;
+    transform: ${({ open }) => open ? "rotate(0deg)" : "rotate(180deg)"};
 `;
 
 const OnlineDot = styled.span`

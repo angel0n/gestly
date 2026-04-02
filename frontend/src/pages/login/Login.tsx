@@ -19,6 +19,7 @@ export function Login() {
             await login(email, password);
             navigate("/dashboard");
         } catch (e: any) {
+            console.log(e.response)
             const status = e?.response?.status;
             const message = e?.response?.data?.message;
 
