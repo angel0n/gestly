@@ -5,13 +5,13 @@ import {MainContent} from "./MainContent.tsx";
 import {Sizes} from "../../constants/Sizes.ts";
 import {useState} from "react";
 
-export function AppLayout({ children }: { children: React.ReactNode }) {
+export function AppLayout({ children, active }: { children: React.ReactNode, active?: string }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     return (
         <AppLayoutComponent>
             <NavBar setMenuOpen={setMenuOpen} menuOpen={menuOpen}/>
-            <SideBar menuOpen={menuOpen} />
+            <SideBar menuOpen={menuOpen} active={active} />
             <MainContent children={children} />
         </AppLayoutComponent>
     )

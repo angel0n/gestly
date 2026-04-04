@@ -7,7 +7,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: React.ReactNode;
 }
 
-export default function Button({ variant = "primary", size = "md", loading = false,
+export function Button({ variant = "primary", size = "md", loading = false,
     icon, children, disabled, ...props }: ButtonProps) {
     return (
         <Base $variant={variant} $size={size} disabled={disabled || loading} {...props}>

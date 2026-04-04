@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
-import Button from "../../components/buttons/Button.tsx";
+import {Button} from "../../components/buttons/Button.tsx";
 import { TextInput } from "../../components/inputs/TextInput.tsx";
 import { useAuth } from "../../context/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
@@ -26,7 +26,7 @@ export function Login() {
             if (status === 422 && Array.isArray(message)) {
                 setErrors(message);
             } else {
-                setErrors(["Ocorreu um erro. Tente novamente."]);
+                setErrors([e.response.data.message]);
             }
         }
     };

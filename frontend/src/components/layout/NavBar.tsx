@@ -30,7 +30,7 @@ export function NavBar({ setMenuOpen, menuOpen }: NavBarProps): React.ReactNode 
         </NavBarComponent>
     )
 }
-export const fadeUp = keyframes`
+const fadeUp = keyframes`
     from {
         opacity: 0;
         transform: translateY(16px);
@@ -190,7 +190,7 @@ const NavActions = styled.div`
 //     }
 // `;
 
-export const NavAvatar = styled.button`
+const NavAvatar = styled.button`
     width: 34px;
     height: 34px;
     border-radius: 8px;

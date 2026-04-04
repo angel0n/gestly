@@ -7,6 +7,7 @@ interface AuthContextType {
     loading: boolean;
     login: (email: string, senha: string) => Promise<void>;
     logout: () => void;
+    getMe: () => Promise<void>;
 }
 
 interface AuthResponse {
@@ -53,9 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (!token) { setLoading(false); return; }
 
             try {
-                const { data } = await Api.get<User>("/auth/me");
-                setUser(data);
-                setCache(data);
+                await getMe();
             } catch {
                 clearCache();
                 setUser(null);
@@ -69,18 +68,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (email: string, senha: string) => {
         const { data } = await Api.post<AuthResponse>("/auth/login", { email, password: senha });
-        console.log(data)
         localStorage.setItem("token", data.accessToken);
+        await getMe();
+    };
 
+    const getMe = async () => {
         const { data: me } = await Api.get<User>("/auth/me");
         setUser(me);
         setCache(me);
-    };
+    }
 
     const logout = () => { clearCache(); setUser(null); };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, getMe }}>
             {children}
         </AuthContext.Provider>
     );

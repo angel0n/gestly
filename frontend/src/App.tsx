@@ -6,6 +6,7 @@ import {Dashboard} from "./pages/Dashborard/Dashboard.tsx";
 import {Login} from "./pages/login/Login.tsx";
 import {AuthProvider} from "./context/AuthContext.tsx";
 import {PrivateRoute} from "./PrivateRoute.tsx";
+import {ProfilePage} from "./pages/profile/Profile.tsx";
 
 function App() {
     const {theme} = useTheme();
@@ -18,6 +19,7 @@ function App() {
                         <Route path="/" element={<Login/>}/>
                         <Route element={<PrivateRoute/>}>
                             <Route path="/dashboard" element={<Dashboard/>}/>
+                            <Route path="/profile" element={<ProfilePage/>}/>
                         </Route>
                     </Routes>
                 </BrowserRouter>

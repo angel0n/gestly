@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +10,7 @@ import { NotFoundException } from '../../exception/NotFoundException';
 import { PaginationDto } from '../../core/dtos/PaginationDto';
 import { PaginatedResult } from '../../core/interfaces/IPaginatedResult';
 import { AuthService } from '../auth/auth.service';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -28,7 +29,9 @@ export class UsersService {
       throw new ConflictException('Email already in use');
     }
 
-    const hashedPassword = await this.authService.hashPassword(createUserDto.password);
+    const hashedPassword = await this.authService.hashPassword(
+      createUserDto.password,
+    );
 
     const user = this.usersRepository.create({
       ...createUserDto,
@@ -93,16 +96,32 @@ export class UsersService {
       }
     }
 
-    if (updateUserDto.password) {
-      updateUserDto.password = await this.authService.hashPassword(updateUserDto.password);
-    }
-
     const updated = this.usersRepository.merge(user, updateUserDto);
 
     try {
       return await this.usersRepository.save(updated);
     } catch (error) {
       throw new InternalServerErrorException('Error updating user');
+    }
+  }
+
+  async updatePassword(id: number, updatePasswordDto: UpdatePasswordDto) {
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(`User #${id} not found`);
+    }
+
+    const auth = await this.authService.comparePasswords(updatePasswordDto.current, user.password);
+    if(!auth){
+      throw new BadRequestException(`Current password is incorrect`);
+    }
+
+    user.password = await this.authService.hashPassword(updatePasswordDto.next)
+    try {
+      return await this.usersRepository.save(user);
+    } catch (error) {
+      throw new InternalServerErrorException('Error updating password');
     }
   }
 
